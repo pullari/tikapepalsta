@@ -1,6 +1,7 @@
 # tikapepalsta
 TiKaPe ryhmätyönä toteutettava keskustelupalsta
 * git clone **URL tähän**
+* git status - kertoo tilan paikallisessa kansiossa, eli näyttää jos jotakin on muokattu
 * git add **tiedostopolku** - lisää tiedostopolulla määriteltävän tiedoston muutettavien asioiden listaan
 * git commit -m "**viesti**" - lisää viestin muutosten kuvaukseksi, josta muut näkevät helposti mitä muutettu
 * git push - puskee muutokset gittiin, josta kaikki voivat ne sitten ladata
