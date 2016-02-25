@@ -37,7 +37,8 @@ public class ViestiDao {
     public List<Viesti> haeKeskustelunViestit(int key) throws Exception {
         // tehdään kysely
         Connection con = db.getConnection();
-        PreparedStatement stmt = con.prepareStatement("SELECT * FROM Viesti WHERE keskusteluID = ?");
+        String kysely = "SELECT id, datetime(aikaleima, 'localtime') AS aikaleima, nimimerkki, viesti FROM Viesti WHERE keskusteluID = ? ORDER BY aikaleima";
+        PreparedStatement stmt = con.prepareStatement(kysely);
         stmt.setObject(1, key);
         List<Viesti> viestit = new ArrayList<>();
         ResultSet rs = stmt.executeQuery();
