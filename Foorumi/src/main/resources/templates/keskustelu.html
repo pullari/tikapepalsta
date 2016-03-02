@@ -8,9 +8,10 @@
 
     <body>
         <h1>Hei maailma!</h1>
+        
         <ul>
-            <li th:each="alue: ${alueet}">
-                <a href="/" name="linkki"> <span th:text="${alue.id}">1</span></a> <span th:text="${alue.nimi}">Essi esimerkki</span>
+            <li th:each="viesti: ${viestit}">
+                <span th:text="${viesti.id}">1</span> <span th:text="${viesti.viesti}">Essi esimerkki</span>
             </li>
         </ul>
 
