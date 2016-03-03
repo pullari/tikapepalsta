@@ -1,0 +1,61 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+    <head>
+        <title>Otsikko</title>
+        <meta charset="UTF-8" />
+        <style>
+        body {
+            background-color: #e6e6e6;
+        }
+        section {
+            width:96%;
+            padding-left:80px;
+        }
+        p {
+            padding: 10px;
+            margin: 10px;
+            background-color: lightgrey;
+            text-indent: 50px;
+        }
+
+        table, th, td {
+
+            border-spacing: 5px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            font-size: 150%;
+        }
+        table tr:nth-child(even) {
+            background-color: #e6f2ff;
+        }
+        table tr:nth-child(odd) {
+            background-color: #99caff;
+        }
+        </style>
+    </head>
+
+    <body>
+        <h1>Keskustelut!</h1>
+        
+        <table style="width:100%">
+            <tr>
+              <th> Konvo </th>
+              <th> Eka </th>
+              <th> PVM </th>
+            </tr>
+            <tr th:each="keskustelu : ${keskustelut}">
+                <td><a th:href="${keskustelu.getId()}"> <p th:text="${keskustelu.getNimi()}">testi </p> </a></td>
+                <td th:text="${keskustelu.getUusin()}"> 2 </td>
+                <td th:text="${keskustelu.getLeima()}"> 123124 </td>
+            </tr>
+        </table>
+        <form method="POST" action="?" >
+            Nimi:<br/>
+            <input type="text" name="avaus"/><br/>
+            <input type="submit" value="Uusi konvo"/>
+        </form>
+    </body>
+</html>

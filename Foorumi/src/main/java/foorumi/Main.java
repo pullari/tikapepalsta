@@ -1,43 +1,71 @@
 package foorumi;
 
-import java.sql.*;
 import java.util.*;
 import spark.*;
 import static spark.Spark.*;
 import spark.template.thymeleaf.ThymeleafTemplateEngine;
 
 public class Main {
-
+    
     public static void main(String[] args) throws Exception {
         Database db = new Database("jdbc:sqlite:foorumi.db");
-        KeskusteluDao kdao = new KeskusteluDao(db);
-        ViestiDao vdao = new ViestiDao(db);
-        AlueDao adao = new AlueDao(db);
-        Keskustelu k = kdao.haeYksi("1", vdao);
+        DAO dao = new DAO(db);
 
-
-        get("/viesti", (req, res) -> {
-            String a = k.getNimi() + "<br/>" + "<br/>";
-            for (Viesti v : k.getViestit()) {
-                a += v.getViesti() + ":" + v.getAikaleima() + ":" + v.getNimimerkki() + "<br/>";
-            }
-            return a;
-        });
-
-
-        List<Alue> alueet = adao.haeKaikki();
+        get("/", (req, res) -> {
+            HashMap map = new HashMap<>();
+            map.put("alueet", dao.haeAlueet());
+            return new ModelAndView(map, "alueet");
+        }, new ThymeleafTemplateEngine());
         
+        post("/", (req, res) -> {
+            String nimi = req.queryParams("nimi");
+            dao.uusiAlue(nimi);
+            paivitaAlueet(dao.haeAlueet(), dao);
+            HashMap map = new HashMap<>();
+            map.put("alueet", dao.haeAlueet());
+            return new ModelAndView(map, "alueet");
+        }, new ThymeleafTemplateEngine());
 
-        System.out.println("*****************");
-        System.out.println(k.getNimi() + ":");
-
-        for (Viesti v : k.getViestit()) {
-            System.out.println("\t" + v.getViesti() + ":" + v.getNimimerkki()+ ":" + v.getAikaleima());
+        paivitaAlueet(dao.haeAlueet(), dao);
+        paivitaViestit(dao.haeKonvot(), dao);
+    }
+    
+    public static void paivitaAlueet(List<Alue> alueet, DAO dao) throws Exception{
+        for (Alue alue : alueet) {
+            get("/" + alue.getNimi(), (req, res) -> {
+                HashMap map = new HashMap<>();
+                map.put("keskustelut", dao.haeAlueenKonvot(alue.getId()));
+                return new ModelAndView(map, "keskustelut");
+            }, new ThymeleafTemplateEngine());
+            
+            post("/" + alue.getNimi(), (req, res) -> {
+                String nimi = req.queryParams("avaus");
+                dao.uusiKonvo(alue, nimi);
+                paivitaAlueet(dao.haeAlueet(), dao);
+                paivitaViestit(dao.haeAlueenKonvot(alue.getId()), dao);
+                HashMap map = new HashMap<>();
+                map.put("keskustelut", dao.haeAlueenKonvot(alue.getId()));
+                return new ModelAndView(map, "keskustelut");
+            }, new ThymeleafTemplateEngine());
         }
-        
-        for (Alue a : alueet) {
-            System.out.println(a.getNimi() + ":" + a.getViesteja());
+    }
+    
+    public static void paivitaViestit(List<Keskustelu> konvot, DAO dao){
+        for (Keskustelu konvo : konvot) {
+            get("/" + konvo.getId(), (req, res) -> {
+                HashMap map = new HashMap<>();
+                map.put("viestit", dao.haeKeskustelunViestit(konvo.getId()));
+                return new ModelAndView(map, "viestit");
+            }, new ThymeleafTemplateEngine());
+            
+            post("/" + konvo.getId(), (req, res) -> {
+                String nimi = req.queryParams("nimimerkki");
+                String viesti = req.queryParams("viesti");
+                dao.uusiViesti(konvo.getId(), nimi, viesti);
+                HashMap map = new HashMap<>();
+                map.put("viestit", dao.haeKeskustelunViestit(konvo.getId()));
+                return new ModelAndView(map, "viestit");
+            }, new ThymeleafTemplateEngine());
         }
-
     }
 }

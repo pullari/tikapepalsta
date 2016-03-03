@@ -35,6 +35,4 @@ public class Viesti {
     public String getAikaleima() {
         return this.aikaleima;
     }
-    
-    
 }
