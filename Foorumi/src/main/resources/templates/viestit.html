@@ -2,11 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 
     <head>
+        <meta charset="ISO-8859-1"/>
         <title>Otsikko</title>
-        <meta charset="UTF-8" />
         <style>
         body {
             background-color: #e6e6e6;
+            margin-right:400px;
+            margin-left:400px;
         }
         section {
             width:100%;
@@ -38,7 +40,32 @@
         </style>
     </head>
 
-    <body>
+    <body onload="aseta()">
+        
+        <script>
+            var i = 1;
+            if(localStorage.getItem("luku") != null){
+                i = localStorage.getItem("luku");
+            }
+            function incr(){
+                ++i;
+                document.getElementById("sivu").value = i;
+                localStorage.setItem("luku", i);
+                document.getElementById('seuraavat').submit();
+            }
+            function decr(){
+                if(i > 1){
+                    --i;
+                    document.getElementById("sivu").value = i;
+                    localStorage.setItem("luku", i);
+                    document.getElementById('seuraavat').submit();
+                }
+            }
+            function aseta(){
+                document.getElementById("sivu").value = localStorage.getItem("luku");
+            }
+        </script>
+        
         <h1>Viestiketju!</h1>
         
         <table style="width:100%">
@@ -48,9 +75,9 @@
               <th> PVM </th>
             </tr>
             <tr th:each="viesti : ${viestit}">
-                <td th:text="${viesti.getViesti()}"> 2 </td>
-                <td th:text="${viesti.getNimimerkki()}"> 2 </td>
-                <td th:text="${viesti.getAikaleima()}"> 123124 </td>
+                <td width="600" th:text="${viesti.getViesti()}"> 2 </td>
+                <td width="200" th:text="${viesti.getNimimerkki()}"> 2 </td>
+                <td width="100" th:text="${viesti.getAikaleima()}"> 123124 </td>
             </tr>
         </table>
         
@@ -59,8 +86,12 @@
             <textarea  rows="4" cols="50" id="viesti" name="viesti" ></textarea><br/>
             Nimimerkki:<br/>
             <input type="text" name="nimimerkki"/><br/>
-            <input type="submit" value="Uusi viesti"/>
+            <input type="submit" value="Uusi viesti"/><br/><br/>
         </form>
-        
+        <form method="Get" action="?" id="seuraavat">
+            <input type="button" name="alas" value="alas" onclick="decr()"/>
+            <input type="text" size="1" name="sivu" value="1" id="sivu"/>
+            <input type="button" name="ylös" value="ylös" onclick="incr()"/><br/>
+        </form>
     </body>
 </html>

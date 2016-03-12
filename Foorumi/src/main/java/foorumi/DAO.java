@@ -25,7 +25,7 @@ public class DAO {
         Connection con = db.getConnection();
         String kysely = "SELECT Alue.id, Alue.nimi, COUNT(Viesti.id) AS Viestit, datetime(MAX(Viesti.aikaleima), 'localtime') AS Leima "
                 + "FROM Alue LEFT JOIN Keskustelu ON Alue.id = Keskustelu.alueID LEFT JOIN Viesti ON Keskustelu.id = Viesti.keskusteluID "
-                + "GROUP BY Alue.nimi ORDER BY Viesti.aikaleima DESC";
+                + "GROUP BY Alue.nimi ORDER BY Alue.nimi";
         PreparedStatement stmt = con.prepareStatement(kysely);
         ResultSet rs = stmt.executeQuery();
         boolean hasOne = rs.isBeforeFirst();
@@ -41,15 +41,16 @@ public class DAO {
         }
         return A;
     }
-    //
-    public List<Keskustelu> haeAlueenKonvot(int key) throws Exception {
+    
+    public List<Keskustelu> haeAlueenKonvotOffset(int key, int off) throws Exception {
         List<Keskustelu> A = new ArrayList<>();
         Connection con = db.getConnection();
         PreparedStatement stmt = con.prepareStatement("SELECT Keskustelu.id, Keskustelu.alueID, Keskustelu.avaus, datetime(MAX(Viesti.aikaleima), 'localtime') AS leima, Viesti.viesti AS viesti "
                                                 + "FROM Keskustelu LEFT JOIN Viesti "
                                                 + "ON Keskustelu.id = Viesti.keskusteluID "
                                                 + "WHERE Keskustelu.alueID = " + key + " "
-                                                + "GROUP BY keskustelu.id ORDER BY Viesti.aikaleima DESC");
+                                                + "GROUP BY keskustelu.id ORDER BY Viesti.aikaleima DESC "
+                                                + "LIMIT 10 OFFSET " + (10 * off));
 
         ResultSet rs = stmt.executeQuery();
         boolean hasOne = rs.isBeforeFirst();
@@ -93,10 +94,10 @@ public class DAO {
         return A;
     }
     
-    public List<Viesti> haeKeskustelunViestit(int key) throws Exception {
+    public List<Viesti> haeKeskustelunViestitOffset(int key, int off) throws Exception {
         // tehdään kysely
         Connection con = db.getConnection();
-        String kysely = "SELECT id, datetime(aikaleima, 'localtime') AS aikaleima, nimimerkki, viesti FROM Viesti WHERE keskusteluID = ? ORDER BY aikaleima DESC";
+        String kysely = "SELECT id, datetime(aikaleima, 'localtime') AS aikaleima, nimimerkki, viesti FROM Viesti WHERE keskusteluID = ? ORDER BY aikaleima DESC LIMIT 10 OFFSET " + (10 * off);
         PreparedStatement stmt = con.prepareStatement(kysely);
         stmt.setObject(1, key);
         List<Viesti> viestit = new ArrayList<>();
@@ -115,7 +116,6 @@ public class DAO {
             String aikaleima = rs.getString("aikaleima");
 
             viestit.add(new Viesti(id, null, viesti, nimimerkki, aikaleima));
-
         }
         return viestit;
     }
@@ -147,9 +147,8 @@ public class DAO {
         int rivit = stmt.executeUpdate("INSERT INTO Keskustelu (alueID, avaus) VALUES ('" + a.getId() +"', '" + nimi + "')");
         ResultSet rs = stmt.executeQuery("SELECT * FROM KESKUSTELU");
         while(rs.next()){
-            System.out.println("JUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU");
-            rs.getString("alueID");
-            rs.getString("avaus");
+//            rs.getString("alueID");
+//            rs.getString("avaus");
         }  
     }
 }

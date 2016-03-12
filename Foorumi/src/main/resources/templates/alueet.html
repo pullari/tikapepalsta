@@ -2,11 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 
     <head>
+        <meta charset="ISO-8859-1"/>
         <title>Otsikko</title>
-        <meta charset="UTF-8" />
         <style>
         body {
             background-color: #e6e6e6;
+            margin-right:400px;
+            margin-left:400px;
         }
         section {
             width:96%;
@@ -20,7 +22,6 @@
         }
 
         table, th, td {
-
             border-spacing: 5px;
             text-align: left;
             border-bottom: 1px solid #ddd;
@@ -43,13 +44,13 @@
         <table style="width:100%">
             <tr>
               <th> Aihealue </th>
-              <th> ViestejÃ¤ </th>
+              <th> Viestejä </th>
               <th> PVM </th>
             </tr>
             <tr th:each="alue : ${alueet}">
-                <td><a th:href="${alue.getNimi()}"> <p th:text="${alue.getNimi()}">testi </p> </a></td>
-                <td th:text="${alue.getViesteja()}"> 2 </td>
-                <td th:text="${alue.getLeima()}"> 123124 </td>
+                <td width="800"><a th:href="${alue.getNimi()}"> <div th:text="${alue.getNimi()}">testi </div> </a></td>
+                <td width="100" th:text="${alue.getViesteja()}"> 2 </td>
+                <td width="100" th:text="${alue.getLeima()}"> 123124 </td>
             </tr>
         </table>
         <form method="POST" action="/">

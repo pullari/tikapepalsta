@@ -2,11 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 
     <head>
+        <meta charset="ISO-8859-1"/>
         <title>Otsikko</title>
-        <meta charset="UTF-8" />
         <style>
         body {
             background-color: #e6e6e6;
+            margin-right:400px;
+            margin-left:400px;
         }
         section {
             width:96%;
@@ -35,11 +37,32 @@
             background-color: #99caff;
         }
         </style>
+        <script>
+            var i = 1;
+            if(localStorage.getItem("luku") != null){
+                i = localStorage.getItem("luku");
+            }
+            function incr(){
+                ++i;
+                document.getElementById("sivu").value = i;
+                localStorage.setItem("luku", i);
+                document.getElementById('seuraavat').submit();
+            }
+            function decr(){
+                if(i > 1){
+                    --i;
+                    document.getElementById("sivu").value = i;
+                    localStorage.setItem("luku", i);
+                    document.getElementById('seuraavat').submit();
+                }
+            }
+            function aseta(){
+                document.getElementById("sivu").value = localStorage.getItem("luku");
+            }
+        </script>
     </head>
-
-    <body>
+    <body onload="aseta()">
         <h1>Keskustelut!</h1>
-        
         <table style="width:100%">
             <tr>
               <th> Konvo </th>
@@ -47,15 +70,20 @@
               <th> PVM </th>
             </tr>
             <tr th:each="keskustelu : ${keskustelut}">
-                <td><a th:href="${keskustelu.getId()}"> <p th:text="${keskustelu.getNimi()}">testi </p> </a></td>
-                <td th:text="${keskustelu.getUusin()}"> 2 </td>
-                <td th:text="${keskustelu.getLeima()}"> 123124 </td>
+                <td width="300"><a th:href="${keskustelu.getId()}"> <div th:text="${keskustelu.getNimi()}">testi </div> </a></td>
+                <td width="200" th:text="${keskustelu.getUusin()}"> 2 </td>
+                <td width="100" th:text="${keskustelu.getLeima()}"> 123124 </td>
             </tr>
         </table>
         <form method="POST" action="?" >
             Nimi:<br/>
             <input type="text" name="avaus"/><br/>
-            <input type="submit" value="Uusi konvo"/>
+            <input type="submit" value="Uusi konvo"/><br/><br/>
+        </form>
+        <form method="Get" action="?" id="seuraavat" name="seuraavat">
+            <input type="button" name="alas" value="alas" onclick="decr()"/>
+            <input type="text" size="1" name="sivu" value="1" id="sivu"/>
+            <input type="button" name="ylös" value="ylös" onclick="incr()"/><br/>
         </form>
     </body>
 </html>
