@@ -8,12 +8,24 @@ import spark.template.thymeleaf.ThymeleafTemplateEngine;
 public class Main {
     
     public static void main(String[] args) throws Exception {
-        Database db = new Database("jdbc:sqlite:foorumi.db");
+        
+        // asetetaan portti jos heroku antaa PORT-ympäristömuuttujan
+        if (System.getenv("PORT") != null) {
+            port(Integer.valueOf(System.getenv("PORT")));
+        }
+        // käytetään oletuksena paikallista sqlite-tietokantaa
+        String jdbcOsoite = "jdbc:sqlite:foorumi.db";
+        // jos heroku antaa käyttöömme tietokantaosoitteen, otetaan se käyttöön
+        if (System.getenv("DATABASE_URL") != null) {
+            System.out.println("löytyi");
+            jdbcOsoite = System.getenv("DATABASE_URL");
+        } 
+
+        Database db = new Database(jdbcOsoite);
         DAO dao = new DAO(db);
 
         get("/", (req, res) -> {
             HashMap map = new HashMap<>();
-            paivitaAlueet(dao.haeAlueet(), dao);
             map.put("alueet", dao.haeAlueet());
             return new ModelAndView(map, "alueet");
         }, new ThymeleafTemplateEngine());

@@ -23,9 +23,9 @@ public class DAO {
     public List<Alue> haeAlueet() throws Exception{
         List<Alue> A = new ArrayList<>();
         Connection con = db.getConnection();
-        String kysely = "SELECT Alue.id, Alue.nimi, COUNT(Viesti.id) AS Viestit, datetime(MAX(Viesti.aikaleima), 'localtime') AS Leima "
+        String kysely = "SELECT Alue.id, Alue.nimi, COUNT(Viesti.id) AS Viestit, MAX(Viesti.aikaleima) AS Leima "
                 + "FROM Alue LEFT JOIN Keskustelu ON Alue.id = Keskustelu.alueID LEFT JOIN Viesti ON Keskustelu.id = Viesti.keskusteluID "
-                + "GROUP BY Alue.nimi ORDER BY Alue.nimi";
+                + "GROUP BY Alue.id ORDER BY Alue.nimi";
         PreparedStatement stmt = con.prepareStatement(kysely);
         ResultSet rs = stmt.executeQuery();
         boolean hasOne = rs.isBeforeFirst();
@@ -39,18 +39,20 @@ public class DAO {
             String leima = rs.getString("Leima");
             A.add(new Alue(id, nimi, viestit, leima));
         }
+        con.close();
+        stmt.close();
+        rs.close();
         return A;
     }
     
     public List<Keskustelu> haeAlueenKonvotOffset(int key, int off) throws Exception {
         List<Keskustelu> A = new ArrayList<>();
-        Connection con = db.getConnection();
-        PreparedStatement stmt = con.prepareStatement("SELECT Keskustelu.id, Keskustelu.alueID, Keskustelu.avaus, datetime(MAX(Viesti.aikaleima), 'localtime') AS leima, Viesti.viesti AS viesti "
-                                                + "FROM Keskustelu LEFT JOIN Viesti "
-                                                + "ON Keskustelu.id = Viesti.keskusteluID "
-                                                + "WHERE Keskustelu.alueID = " + key + " "
-                                                + "GROUP BY keskustelu.id ORDER BY Viesti.aikaleima DESC "
-                                                + "LIMIT 10 OFFSET " + (10 * off));
+        Connection con = db.getConnection();                                                                                                //Viesti.viesti AS viesti
+        PreparedStatement stmt = con.prepareStatement("SELECT * FROM (SELECT DISTINCT ON (Keskustelu.id) Keskustelu.id, alueID, avaus, aikaleima, viesti "
+                                                                        + "FROM Keskustelu LEFT JOIN Viesti ON Keskustelu.id = Viesti.keskusteluID "
+                                                                        + "ORDER BY Keskustelu.id, aikaleima DESC) AS sub "
+                                                        + "ORDER BY aikaleima DESC "
+                                                        + "LIMIT 10 OFFSET " + (10 * off));
 
         ResultSet rs = stmt.executeQuery();
         boolean hasOne = rs.isBeforeFirst();
@@ -61,22 +63,30 @@ public class DAO {
             int id = rs.getInt("id");
             String nimi = rs.getString("avaus");
             int alueID = rs.getInt("alueID");
-            String leima = rs.getString("leima");
+            String leima = rs.getString("aikaleima");
             String sisalto = rs.getString("viesti");
             
             A.add(new Keskustelu(id, alueID, nimi, sisalto, leima));
         }
+        con.close();
+        stmt.close();
+        rs.close();
         return A;
     }
     
     public List<Keskustelu> haeKonvot() throws Exception {
         List<Keskustelu> A = new ArrayList<>();
-        Connection con = db.getConnection();
-        PreparedStatement stmt = con.prepareStatement("SELECT Keskustelu.id, Keskustelu.alueID, Keskustelu.avaus, datetime(MAX(Viesti.aikaleima), 'localtime') AS leima, Viesti.viesti AS viesti "
-                                                + "FROM Keskustelu LEFT JOIN Viesti ON Keskustelu.id = Viesti.keskusteluID "
-                                                + "GROUP BY keskustelu.id "
-                                                + "ORDER BY Viesti.aikaleima DESC");
+        Connection con = db.getConnection();                                                                  //datetime(MAX(Viesti.aikaleima), 'localtime')
+        PreparedStatement stmt = con.prepareStatement("SELECT * FROM (SELECT DISTINCT ON (Keskustelu.id) Keskustelu.id, alueID, avaus, aikaleima, viesti "
+                                                                        + "FROM Keskustelu LEFT JOIN Viesti ON Keskustelu.id = Viesti.keskusteluID "
+                                                                        + "ORDER BY Keskustelu.id, aikaleima DESC) AS sub "
+                                                        + "ORDER BY aikaleima DESC");
 
+//        "SELECT DISTINCT ON (Keskustelu.id) Keskustelu.id, alueID, avaus, aikaleima, viesti "
+//                                                + "FROM Keskustelu LEFT JOIN Viesti ON Keskustelu.id = Viesti.keskusteluID "
+//                                                + "ORDER BY Keskustelu.id, aikaleima DESC");
+                
+                
         ResultSet rs = stmt.executeQuery();
         boolean hasOne = rs.isBeforeFirst();
         if (!hasOne) {
@@ -86,18 +96,21 @@ public class DAO {
             int id = rs.getInt("id");
             String nimi = rs.getString("avaus");
             int alueID = rs.getInt("alueID");
-            String leima = rs.getString("leima");
+            String leima = rs.getString("aikaleima");
             String sisalto = rs.getString("viesti");
             
             A.add(new Keskustelu(id, alueID, nimi, sisalto, leima));
         }
+        con.close();
+        stmt.close();
+        rs.close();
         return A;
     }
     
     public List<Viesti> haeKeskustelunViestitOffset(int key, int off) throws Exception {
         // tehdään kysely
         Connection con = db.getConnection();
-        String kysely = "SELECT id, datetime(aikaleima, 'localtime') AS aikaleima, nimimerkki, viesti FROM Viesti WHERE keskusteluID = ? ORDER BY aikaleima DESC LIMIT 10 OFFSET " + (10 * off);
+        String kysely = "SELECT id, aikaleima, nimimerkki, viesti FROM Viesti WHERE keskusteluID = ? ORDER BY aikaleima DESC LIMIT 10 OFFSET " + (10 * off);
         PreparedStatement stmt = con.prepareStatement(kysely);
         stmt.setObject(1, key);
         List<Viesti> viestit = new ArrayList<>();
@@ -117,6 +130,9 @@ public class DAO {
 
             viestit.add(new Viesti(id, null, viesti, nimimerkki, aikaleima));
         }
+        con.close();
+        stmt.close();
+        rs.close();
         return viestit;
     }
     
@@ -128,6 +144,9 @@ public class DAO {
         while(rs.next()){
         //    System.out.println(rs.getString("nimi"));
         }
+        con.close();
+        stmt.close();
+        rs.close();
     }
     
     public void uusiViesti(int keskusteluId, String nimimerkki, String viesti) throws Exception{
@@ -139,6 +158,9 @@ public class DAO {
          //   System.out.println(rs.getString("viesti"));
          //   System.out.println(rs.getString("keskusteluID"));
         }
+        con.close();
+        stmt.close();
+        rs.close();
     }
     
     public void uusiKonvo(Alue a, String nimi) throws Exception{
@@ -150,5 +172,8 @@ public class DAO {
 //            rs.getString("alueID");
 //            rs.getString("avaus");
         }  
+        con.close();
+        stmt.close();
+        rs.close();
     }
 }

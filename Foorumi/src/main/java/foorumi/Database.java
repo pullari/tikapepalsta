@@ -8,12 +8,13 @@ import java.util.*;
 public class Database {
 
 
-    private Connection connection;
+//    private Connection connection;
     private String databaseAddress;
     
     public Database(String address) throws Exception {
-        this.connection = DriverManager.getConnection(address);
+//        this.connection = DriverManager.getConnection(address);
         this.databaseAddress = address;
+        init();
     }
     
     private void init() {
@@ -67,10 +68,10 @@ public class Database {
 //        lista.add("CREATE TABLE Tuote (id SERIAL PRIMARY KEY, nimi varchar(255));");
 //        lista.add("INSERT INTO Tuote (nimi) VALUES ('postgresql-tuote');");
         
-        lista.add("DROP TABLE Alue");
-        lista.add("DROP TABLE Keskustelu");
         lista.add("DROP TABLE Viesti");
-        
+        lista.add("DROP TABLE Keskustelu");
+        lista.add("DROP TABLE Alue");
+       
         lista.add("CREATE TABLE Alue (id SERIAL PRIMARY KEY, nimi varchar(50));");
         lista.add("CREATE TABLE Keskustelu (id SERIAL PRIMARY KEY, alueID INTEGER, avaus varchar(140), FOREIGN KEY (alueID) REFERENCES Alue(id));");
         lista.add("CREATE TABLE Viesti (id SERIAL PRIMARY KEY, keskusteluID INTEGER, nimimerkki varchar(50), viesti TEXT, aikaleima TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (keskusteluID) REFERENCES Keskustelu(id));");
@@ -87,8 +88,8 @@ public class Database {
         ArrayList<String> lista = new ArrayList<>();
 
         // tietokantataulujen luomiseen tarvittavat komennot suoritusjärjestyksessä
-        lista.add("CREATE TABLE Tuote (id integer PRIMARY KEY, nimi varchar(255));");
-        lista.add("INSERT INTO Tuote (nimi) VALUES ('sqlite-tuote');");
+//        lista.add("CREATE TABLE Tuote (id integer PRIMARY KEY, nimi varchar(255));");
+//        lista.add("INSERT INTO Tuote (nimi) VALUES ('sqlite-tuote');");
 
         lista.add("CREATE TABLE Alue (id integer PRIMARY KEY, nimi varchar(50));");
         lista.add("CREATE TABLE Keskustelu (id integer PRIMARY KEY, alueID INTEGER, avaus varchar(140), FOREIGN KEY (alueID) REFERENCES Alue(id));");
