@@ -50,6 +50,7 @@ public class DAO {
         Connection con = db.getConnection();                                                                                                //Viesti.viesti AS viesti
         PreparedStatement stmt = con.prepareStatement("SELECT * FROM (SELECT DISTINCT ON (Keskustelu.id) Keskustelu.id, alueID, avaus, aikaleima, viesti "
                                                                         + "FROM Keskustelu LEFT JOIN Viesti ON Keskustelu.id = Viesti.keskusteluID "
+                                                                        + "WHERE Keskustelu.alueID = " + key + " "
                                                                         + "ORDER BY Keskustelu.id, aikaleima DESC) AS sub "
                                                         + "ORDER BY aikaleima DESC "
                                                         + "LIMIT 10 OFFSET " + (10 * off));
@@ -139,6 +140,9 @@ public class DAO {
     public void uusiAlue(String nimi) throws Exception{
         Connection con = db.getConnection();
         Statement stmt = con.createStatement();
+        if(nimi.isEmpty() || nimi == null){
+            nimi = "tyhjä";
+        }
         int rivit = stmt.executeUpdate("INSERT INTO Alue (nimi) VALUES ('" + nimi + "')");
         ResultSet rs = stmt.executeQuery("SELECT * FROM Alue");
         while(rs.next()){
@@ -166,6 +170,9 @@ public class DAO {
     public void uusiKonvo(Alue a, String nimi) throws Exception{
         Connection con = db.getConnection();
         Statement stmt = con.createStatement();
+        if(nimi.isEmpty() || nimi == null){
+            nimi = "tyhjä";
+        }
         int rivit = stmt.executeUpdate("INSERT INTO Keskustelu (alueID, avaus) VALUES ('" + a.getId() +"', '" + nimi + "')");
         ResultSet rs = stmt.executeQuery("SELECT * FROM KESKUSTELU");
         while(rs.next()){

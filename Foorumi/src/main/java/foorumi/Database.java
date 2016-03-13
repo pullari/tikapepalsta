@@ -74,7 +74,7 @@ public class Database {
        
         lista.add("CREATE TABLE Alue (id SERIAL PRIMARY KEY, nimi varchar(50));");
         lista.add("CREATE TABLE Keskustelu (id SERIAL PRIMARY KEY, alueID INTEGER, avaus varchar(140), FOREIGN KEY (alueID) REFERENCES Alue(id));");
-        lista.add("CREATE TABLE Viesti (id SERIAL PRIMARY KEY, keskusteluID INTEGER, nimimerkki varchar(50), viesti TEXT, aikaleima TIMESTAMP DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (keskusteluID) REFERENCES Keskustelu(id));");
+        lista.add("CREATE TABLE Viesti (id SERIAL PRIMARY KEY, keskusteluID INTEGER, nimimerkki varchar(50), viesti TEXT, aikaleima TIMESTAMP DEFAULT localtimestamp(0), FOREIGN KEY (keskusteluID) REFERENCES Keskustelu(id));");
 
         lista.add("INSERT INTO Alue (nimi) VALUES ('uusi');");
         lista.add("INSERT INTO Keskustelu (alueID, avaus) VALUES ('1', 'uusi');");

@@ -26,6 +26,7 @@ public class Main {
 
         get("/", (req, res) -> {
             HashMap map = new HashMap<>();
+            paivitaAlueet(dao.haeAlueet(), dao);
             map.put("alueet", dao.haeAlueet());
             return new ModelAndView(map, "alueet");
         }, new ThymeleafTemplateEngine());
